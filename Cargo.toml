@@ -1,0 +1,7 @@
+[package]
+name = "python-edge"
+version = "0.1.0"
+authors = ["Raffael Zica <raffael.zica@mdk-bb.de>"]
+
+[dependencies]
+regex = "1"
