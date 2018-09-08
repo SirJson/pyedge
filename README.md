@@ -16,7 +16,9 @@ Since the only dynamic dependency is libc this should work on many Linux systems
 
 ### Downloads
 
-*...soon*
+* Linux (x64): https://github.com/SirJson/pyedge/releases/tag/Beta-1
+
+Other prebuild binaries might follow. In case you need it right now follow the steps below.
 
 ### Building from Source
 
