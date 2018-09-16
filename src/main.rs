@@ -14,7 +14,7 @@ use std::env;
 use std::ffi::{CStr, CString};
 use std::fs;
 use std::io;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::vec::Vec;
 
 type CCharStr = Vec<c_char>;
@@ -80,8 +80,8 @@ fn into_libc_c_char(input: &CString) -> CCharStr {
     let append_zero = *data_slice.last().unwrap() != '\0' as u8;
     let in_size = data_slice.len();
     let size = match append_zero {
-        true  => in_size + 1,
-        false => in_size
+        true => in_size + 1,
+        false => in_size,
     };
     let mut output: CCharStr = vec![0i8; size];
     for (a, b) in output.iter_mut().zip(data_slice) {
@@ -91,18 +91,28 @@ fn into_libc_c_char(input: &CString) -> CCharStr {
         debug!("Appending zero");
         output[in_size] = '\0' as i8;
     }
-    debug!("converter: {:?}",&output);
+    debug!("converter: {:?}", &output);
     output
 }
 
 fn main() {
     env_logger::init();
-    let search_paths = vec![Path::new("/usr/bin"), Path::new("/usr/local/bin")];
+    let mut sys_paths: Vec<PathBuf> = Vec::new();
+    let path_key = "PATH";
+
+    match env::var_os(path_key) {
+        Some(paths) => {
+            for path in env::split_paths(&paths) {
+                sys_paths.push(PathBuf::from(path));
+            }
+        }
+        None => error!("{} is not defined in the environment.", path_key),
+    }
     let mut python_list: Vec<PythonVersion> = Vec::new();
-    for directory in search_paths {
+    for directory in &sys_paths {
         match find_python(directory) {
             Ok(mut list) => python_list.append(&mut list),
-            Err(error) => println!("dir error: {:?}", error),
+            Err(error) => error!("dir error: {:?}", error),
         }
     }
     python_list.sort();
